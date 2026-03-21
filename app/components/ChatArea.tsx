@@ -39,14 +39,6 @@ const SAMPLE_CATEGORIES = [
     ],
   },
   {
-    label: '🔥 수혜주 탐색',
-    questions: [
-      'AI 반도체 관련주 알려줘',
-      '금리 인하 수혜주는 어떤 게 있어?',
-      '방산 테마주 분석해줘',
-    ],
-  },
-  {
     label: '💰 주가 & 시장',
     questions: [
       '삼성전자 현재 주가 알려줘',
