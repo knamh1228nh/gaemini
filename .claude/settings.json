@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/)",
+      "Bash(netstat -ano)",
+      "Bash(curl -s -w \"\\\\nHTTP_STATUS:%{http_code}\" http://localhost:3000/api/chat -X POST -H \"Content-Type: application/json\" -d '{\"\"\"\"message\"\"\"\":\"\"\"\"test\"\"\"\"}')",
+      "Bash(node -e \"require\\(''''./lib/tools/beneficiary-logic''''\\)\")",
+      "Bash(curl -v http://localhost:3000/api/chat -X POST -H \"Content-Type: application/json\" -H \"Authorization: Bearer test\" -d '{\"\"\"\"message\"\"\"\":\"\"\"\"test\"\"\"\"}')",
+      "WebFetch(domain:www.ant.wiki)",
+      "Bash(npm install:*)",
+      "Bash(find /c/Users/knamh/Desktop/Gaemini/app -type f -name *.tsx -o -name *.ts -o -name *.css)"
+    ]
+  }
+}
