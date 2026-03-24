@@ -7,11 +7,11 @@ const API_KEYS = [
   process.env.GEMINI_API_KEY_3,
 ].filter((k): k is string => !!k)
 
-// 수혜주 분석: 품질 우선 (2.5-flash → 2.0-flash-lite 폴백)
-export const MODELS_ANALYSIS = ['gemini-2.5-flash']
+// 수혜주 분석: 품질 우선
+export const MODELS_ANALYSIS = ['gemini-3.1-flash-lite-preview']
 
 // 일반 Q&A / 종목명 추출
-export const MODELS_LITE = ['gemini-2.5-flash']
+export const MODELS_LITE = ['gemini-3.1-flash-lite-preview']
 
 /** Google Search Grounding 도구 */
 export const googleSearchTool: Tool = { googleSearch: {} }

@@ -25,7 +25,7 @@ const API_KEYS = [
   process.env.GEMINI_API_KEY_3,
 ].filter((k): k is string => !!k)
 
-const MODELS = ['gemini-2.5-flash']
+const MODELS = ['gemini-3.1-flash-lite-preview']
 
 const SYSTEM_INSTRUCTION = `당신은 한국 주식 투자 정보 비서 "Gaemini"입니다. ant.wiki 플랫폼에 내장된 AI로, 개인 투자자(개미)가 다른 사이트로 이탈하지 않고 모든 투자 정보를 한 곳에서 찾을 수 있도록 돕는 것이 핵심 목표입니다.
 
