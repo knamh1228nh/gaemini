@@ -1,7 +1,7 @@
 import * as cheerio from 'cheerio'
 import { googleSearchTool, geminiGenerateWithRotation, geminiGenerateWithContentsRotation, MODELS_ANALYSIS } from '../gemini'
 import { supabaseServer } from '../supabase-server'
-import { verifyStockCode } from '../naver-stock'
+import { verifyStockCode, checkTradeStatus } from '../naver-stock'
 
 // ─────────────────────────────────────────────────────────────
 // 수혜 강도 가중치 (Short-term / Long-term)
@@ -43,6 +43,7 @@ interface ScoredBeneficiary {
   short_score:     number
   long_score:      number
   narrative:       string
+  isSuspended?:    boolean  // 거래정지 여부
 }
 
 interface BeneficiaryResult {
@@ -256,12 +257,16 @@ export async function executeFindBeneficiaries(
   // 5. short_score / long_score 계산 + 네이버 종목코드 검증 (병렬)
   const scored: ScoredBeneficiary[] = await Promise.all(
     parsed.beneficiaries.map(async (b) => {
-      const verified = await verifyStockCode(b.name, b.code)
+      const [verified, isSuspended] = await Promise.all([
+        verifyStockCode(b.name, b.code),
+        checkTradeStatus(b.code),
+      ])
       return {
         ...b,
         name: verified.name,
         code: verified.code,
         ...calcScores(b.score_breakdown),
+        isSuspended,
       }
     })
   )
@@ -359,12 +364,16 @@ export async function executeFindBeneficiariesFromTopic(
   // short_score / long_score 계산 + 네이버 종목코드 검증 (URL 흐름과 동일)
   const scored: ScoredBeneficiary[] = await Promise.all(
     parsed.beneficiaries.map(async (b) => {
-      const verified = await verifyStockCode(b.name, b.code)
+      const [verified, isSuspended] = await Promise.all([
+        verifyStockCode(b.name, b.code),
+        checkTradeStatus(b.code),
+      ])
       return {
         ...b,
         name: verified.name,
         code: verified.code,
         ...calcScores(b.score_breakdown),
+        isSuspended,
       }
     })
   )
@@ -432,12 +441,16 @@ export async function executeFindBeneficiariesFromPdf(
 
   const scored: ScoredBeneficiary[] = await Promise.all(
     parsed.beneficiaries.map(async (b) => {
-      const verified = await verifyStockCode(b.name, b.code)
+      const [verified, isSuspended] = await Promise.all([
+        verifyStockCode(b.name, b.code),
+        checkTradeStatus(b.code),
+      ])
       return {
         ...b,
         name: verified.name,
         code: verified.code,
         ...calcScores(b.score_breakdown),
+        isSuspended,
       }
     })
   )

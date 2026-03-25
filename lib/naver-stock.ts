@@ -82,6 +82,7 @@ export interface StockPrice {
   changeRate: string     // 등락률 (% 포함)
   marketCap?: string     // 시가총액
   volume?: string        // 거래량
+  isSuspended?: boolean  // 거래정지 여부
 }
 
 /**
@@ -114,6 +115,7 @@ export async function fetchStockPrice(code: string): Promise<StockPrice | null> 
           const name = d.stockName ?? d.name ?? ''
           const marketCap = d.marketValue ? String(d.marketValue) : undefined
           const volume = d.accumulatedTradingVolume ?? d.tradingVolume ?? undefined
+          const isSuspended = d.tradeStopYn === 'Y' || d.stockEndCode === 'Y' || d.haltYn === 'Y'
 
           if (!currentPrice) { resolve(null); return }
 
@@ -125,6 +127,7 @@ export async function fetchStockPrice(code: string): Promise<StockPrice | null> 
             changeRate: String(changeRate),
             marketCap,
             volume: volume ? String(volume) : undefined,
+            isSuspended,
           })
         } catch {
           resolve(null)
@@ -135,6 +138,43 @@ export async function fetchStockPrice(code: string): Promise<StockPrice | null> 
 
     req.on('error', () => resolve(null))
     req.setTimeout(5000, () => { req.destroy(); resolve(null) })
+  })
+}
+
+/**
+ * 종목코드로 거래정지 여부만 빠르게 확인합니다.
+ * fetchStockPrice보다 가볍게 사용 가능 (결과: true = 거래정지)
+ */
+export async function checkTradeStatus(code: string): Promise<boolean> {
+  return new Promise((resolve) => {
+    const options = {
+      hostname: 'm.stock.naver.com',
+      path: `/api/stock/${code}/basic`,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'Accept': 'application/json',
+        'Referer': 'https://m.stock.naver.com/',
+      },
+    }
+
+    const req = https.get(options, (res) => {
+      const chunks: Buffer[] = []
+      res.on('data', (chunk: Buffer) => chunks.push(chunk))
+      res.on('end', () => {
+        try {
+          const json = JSON.parse(Buffer.concat(chunks).toString('utf-8'))
+          const d = json?.stockInfo ?? json
+          if (!d) { resolve(false); return }
+          resolve(d.tradeStopYn === 'Y' || d.stockEndCode === 'Y' || d.haltYn === 'Y')
+        } catch {
+          resolve(false)
+        }
+      })
+      res.on('error', () => resolve(false))
+    })
+
+    req.on('error', () => resolve(false))
+    req.setTimeout(4000, () => { req.destroy(); resolve(false) })
   })
 }
 

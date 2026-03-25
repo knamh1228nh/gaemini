@@ -57,6 +57,7 @@ export interface ScoredBeneficiary {
   long_score:      number
   score_breakdown: ScoreBreakdown
   narrative:       string
+  isSuspended?:    boolean
 }
 
 export interface BeneficiaryResultChunk {
@@ -145,14 +146,21 @@ function BeneficiaryRow({ b }: { b: ScoredBeneficiary }) {
 
         {/* 종목명 */}
         <div className="px-3 py-2.5">
-          <a
-            href={antWikiUrl(b.code)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-medium text-white hover:text-amber-400 transition-colors text-sm"
-          >
-            {b.name}
-          </a>
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <a
+              href={antWikiUrl(b.code)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-white hover:text-amber-400 transition-colors text-sm"
+            >
+              {b.name}
+            </a>
+            {b.isSuspended && (
+              <span className="text-[9px] px-1.5 py-0.5 rounded-full border bg-red-500/15 border-red-500/40 text-red-400 font-semibold shrink-0">
+                거래정지
+              </span>
+            )}
+          </div>
           <p className="text-[11px] text-zinc-500 mt-0.5">{b.code}</p>
         </div>
 
